@@ -13,13 +13,11 @@ namespace Api.Services
     {
         private readonly ConsumerConfig _consumerConfig;
         private readonly ProducerConfig _producerConfig;
-        private readonly CancellationToken _cancellationToken;
 
-        public ProcessOrdersService(ConsumerConfig consumerConfig, ProducerConfig producerConfig, CancellationToken cancellationToken)
+        public ProcessOrdersService(ConsumerConfig consumerConfig, ProducerConfig producerConfig)
         {
             _producerConfig = producerConfig;
             _consumerConfig = consumerConfig;
-            _cancellationToken = cancellationToken;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -29,7 +27,7 @@ namespace Api.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var consumerHelper = new ConsumerWrapper(_consumerConfig, "orderrequests");
-                var orderRequests = consumerHelper.ReadMessage(_cancellationToken);
+                var orderRequests = consumerHelper.ReadMessage(stoppingToken);
                 
                 foreach (var orderRequest in orderRequests)
                 {

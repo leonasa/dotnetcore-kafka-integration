@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Api.Models;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,6 @@ namespace Api.Controllers
             _config = config;
         }
 
-        // POST api/values
         [HttpPost]
         public async Task<ActionResult> PostAsync([FromBody] OrderRequest value)
         {
@@ -25,13 +25,13 @@ namespace Api.Controllers
             //Serialize 
             string serializedOrder = JsonConvert.SerializeObject(value);
 
-            //Console.WriteLine("========");
-            //Console.WriteLine("Info: OrderController => Post => Recieved a new purchase order:");
-            //Console.WriteLine(serializedOrder);
-            //Console.WriteLine("=========");
+            Console.WriteLine("========");
+            Console.WriteLine("Info: OrderController => Post => Recieved a new purchase order:");
+            Console.WriteLine(serializedOrder);
+            Console.WriteLine("=========");
 
-            //var producer = new ProducerWrapper(this.config,"orderrequests");
-            //await producer.writeMessage(serializedOrder);
+            var producer = new ProducerWrapper(_config, "orderrequests");
+            await producer.WriteMessage(serializedOrder);
 
             return Created("TransactionId", "Your order is in progress");
         }
