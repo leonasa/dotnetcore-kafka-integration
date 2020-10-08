@@ -1,34 +1,25 @@
+using System;
+using System.Threading.Tasks;
+using Confluent.Kafka;
+
 namespace Api
 {
-    using Confluent.Kafka;
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     public class ProducerWrapper
     {
-        private string _topicName;
-        private Producer<string,string> _producer;
-        private ProducerConfig _config;
-        private static readonly Random rand = new Random();
+        private readonly ProducerConfig _config;
+        private readonly string _topicName;
 
-        public ProducerWrapper(ProducerConfig config,string topicName)
+        public ProducerWrapper(ProducerConfig config, string topicName)
         {
-            this._topicName = topicName;
-            this._config = config;
-            this._producer = new Producer<string,string>(this._config);
-            this._producer.OnError += (_,e)=>{
-                Console.WriteLine("Exception:"+e);
-            };
+            _topicName = topicName;
+            _config = config;
         }
-        public async Task writeMessage(string message){
-            var dr = await this._producer.ProduceAsync(this._topicName, new Message<string, string>()
-                        {
-                            Key = rand.Next(5).ToString(),
-                            Value = message
-                        });
-            Console.WriteLine($"KAFKA => Delivered '{dr.Value}' to '{dr.TopicPartitionOffset}'");
-            return;
+
+        public async Task WriteMessage(string message)
+        {
+            using var producer = new ProducerBuilder<Null, string>(_config).Build();
+            var dr = producer.ProduceAsync(_topicName, new Message<Null, string> {Value = message});
+            await dr.ContinueWith(task => { Console.WriteLine(task.IsFaulted ? "ERROR" : $"KAFKA => Delivered '{task.Result.Value}' to '{task.Result.Offset}'"); });
         }
     }
 }

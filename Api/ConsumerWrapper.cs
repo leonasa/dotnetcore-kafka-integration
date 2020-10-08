@@ -1,24 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Confluent.Kafka;
+
 namespace Api
 {
-    using Confluent.Kafka;
-    using System;
-    using System.Threading;
     public class ConsumerWrapper
     {
-        private string _topicName;
-        private ConsumerConfig _consumerConfig;
-        private Consumer<string,string> _consumer;
-        private static readonly Random rand = new Random();
-        public ConsumerWrapper(ConsumerConfig config,string topicName)
+        private readonly ConsumerConfig _consumerConfig;
+        private readonly string _topicName;
+
+        public ConsumerWrapper(ConsumerConfig config, string topicName)
         {
-            this._topicName = topicName;
-            this._consumerConfig = config;
-            this._consumer = new Consumer<string,string>(this._consumerConfig);
-            this._consumer.Subscribe(topicName);
+            _topicName = topicName;
+            _consumerConfig = config;
         }
-        public string readMessage(){
-            var consumeResult = this._consumer.Consume();
-            return consumeResult.Value;
+
+        public IEnumerable<string> ReadMessage(CancellationToken cancellationToken)
+        {
+            using var consumer = new ConsumerBuilder<Ignore, string>(_consumerConfig).Build();
+            consumer.Subscribe(_topicName);
+            while (true)
+            {
+                var consumeResult = consumer.Consume(cancellationToken);
+                yield return consumeResult.Message.Value;
+            }
         }
     }
 }
