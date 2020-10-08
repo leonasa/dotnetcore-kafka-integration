@@ -2,17 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>fb0fcbc4-dcca-40e4-933f-42cf9044b11e</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="confluent.kafka" Version="1.5.1" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Confluent.Kafka" Version="1.5.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
+
 
 </Project>
